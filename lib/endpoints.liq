@@ -16,12 +16,12 @@ def controler.json.endpoints.apply_source(~register, ~method, name, apply) =
   # Handler
   def apply(~data, ~headers, ~uri, ~params, response) =
     error   = ["error"]
-    options = 
-       if data == "" then
-         []
-       else
-         of_json(default=error, data)
-       end
+    options =
+      if data == "" then
+        []
+      else
+        of_json(default=error, data)
+      end
 
     if options == error then
       response(code=400,headers=[],json_of([("error","Parse error")]))
@@ -54,7 +54,7 @@ def controler.json.endpoints.map_source(~register, ~remove, name, map) =
   # Handler
   def create_source(~data, ~headers, ~uri, ~params, response) =
     error  = [("error","Parse error")]
-    params = of_json(default=error, data) 
+    params = of_json(default=error, data)
     name   = params["name"]
     source = params["source"]
 
@@ -69,7 +69,7 @@ def controler.json.endpoints.map_source(~register, ~remove, name, map) =
     else
       # Get source
       s      = controler.get_source(source)
-      mapped = map(name, s, data)
+      mapped = map(name, s, params)
 
       # Register it
       controler.set_source(name, mapped)
@@ -79,7 +79,7 @@ def controler.json.endpoints.map_source(~register, ~remove, name, map) =
         controler.json.endpoints.generic(register=register,remove=remove,name=name,mapped)
       end
 
-      response(code=201, headers=[], "") 
+      response(code=201, headers=[], "")
      end
   end
 
@@ -123,7 +123,7 @@ def controler.json.endpoints.map_sources(~register, ~remove, name, map) =
       else
         # Get new source
         source = map(name, sources, options)
- 
+
         # Register it within the controler
         controler.set_source(name, source)
 
@@ -143,7 +143,7 @@ def controler.json.endpoints.create_source(~register, ~remove, name, create) =
   # Handler
   def create_source(~data, ~headers, ~uri, ~params, response) =
     error   = [("error","Parse error")]
-    options = of_json(default=error,data) 
+    options = of_json(default=error,data)
     name    = options["name"]
 
     if name == "" then
@@ -184,7 +184,7 @@ def controler.json.endpoints.output_source(~register, ~remove, name, output) =
     else
       # Create output
       s      = controler.get_source(source)
-      output = output(fallible=source.fallible(s), s, data) 
+      output = output(fallible=source.fallible(s), s, options)
 
       # Register it
       controler.set_source(name, output)
@@ -197,7 +197,7 @@ def controler.json.endpoints.output_source(~register, ~remove, name, output) =
       # Add start/stop/status endpoints
       controler.json.endpoints.stateful(register=register,name=name,output)
 
-      response(code=201,headers=[],"")  
+      response(code=201,headers=[],"")
     end
   end
 
